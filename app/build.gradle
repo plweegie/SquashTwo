@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
@@ -23,7 +22,10 @@ android {
         pickFirst 'META-INF/kotlinx-coroutines-core.kotlin_module'
     }
 
-    buildFeatures.dataBinding = true
+    buildFeatures {
+        dataBinding true
+        viewBinding true
+    }
 
     compileOptions {
         sourceCompatibility = 1.8
@@ -52,6 +54,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
     implementation 'androidx.fragment:fragment-ktx:1.3.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'androidx.preference:preference-ktx:1.1.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
     implementation 'com.google.code.gson:gson:2.8.6'

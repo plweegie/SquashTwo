@@ -24,15 +24,13 @@ package com.plweegie.android.squashtwo.ui;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 
+import androidx.preference.PreferenceManager;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.plweegie.android.squashtwo.R;
 import com.plweegie.android.squashtwo.adapters.GithubPagerAdapter;
-import com.plweegie.android.squashtwo.ui.LoginActivity;
-import com.plweegie.android.squashtwo.ui.VisibleActivity;
 import com.plweegie.android.squashtwo.utils.AuthUtils;
 import com.plweegie.android.squashtwo.utils.WorkManagerUtil;
 

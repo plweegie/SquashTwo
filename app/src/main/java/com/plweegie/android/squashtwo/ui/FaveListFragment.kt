@@ -34,9 +34,9 @@ import com.plweegie.android.squashtwo.R
 import com.plweegie.android.squashtwo.adapters.BaseGithubAdapter
 import com.plweegie.android.squashtwo.adapters.FaveAdapter
 import com.plweegie.android.squashtwo.data.RepoEntry
+import com.plweegie.android.squashtwo.databinding.ListFragmentBinding
 import com.plweegie.android.squashtwo.viewmodels.FaveListViewModel
 import com.plweegie.android.squashtwo.viewmodels.FaveListViewModelFactory
-import kotlinx.android.synthetic.main.list_fragment.*
 import javax.inject.Inject
 
 class FaveListFragment : Fragment(), FaveAdapter.FaveAdapterOnClickHandler,
@@ -47,6 +47,9 @@ class FaveListFragment : Fragment(), FaveAdapter.FaveAdapterOnClickHandler,
 
     private val viewModel by viewModels<FaveListViewModel> { viewModelFactory }
     private lateinit var faveAdapter: FaveAdapter
+
+    private var _binding: ListFragmentBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,8 +62,9 @@ class FaveListFragment : Fragment(), FaveAdapter.FaveAdapterOnClickHandler,
     }
 
     override fun onCreateView(inflater: LayoutInflater, parent: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        val v = inflater.inflate(R.layout.list_fragment, parent, false)
+                              savedInstanceState: Bundle?): View {
+        _binding = ListFragmentBinding.inflate(inflater, parent, false)
+        val v = binding.root
 
         faveAdapter = FaveAdapter(activity).apply {
             setOnFaveDeleteClickedHandler(this@FaveListFragment)
@@ -71,9 +75,9 @@ class FaveListFragment : Fragment(), FaveAdapter.FaveAdapterOnClickHandler,
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        load_indicator?.visibility = View.GONE
+        binding.loadIndicator.visibility = View.GONE
 
-        commits_recycler_view?.apply {
+        binding.commitsRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(activity)
             addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
@@ -85,6 +89,11 @@ class FaveListFragment : Fragment(), FaveAdapter.FaveAdapterOnClickHandler,
                 repoEntries -> faveAdapter.setContent(repoEntries)
             }
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onFaveDeleteClicked(repoId: Long) {

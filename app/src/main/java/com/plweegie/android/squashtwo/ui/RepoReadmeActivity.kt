@@ -7,10 +7,9 @@ import android.util.Base64
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.plweegie.android.squashtwo.App
-import com.plweegie.android.squashtwo.R
+import com.plweegie.android.squashtwo.databinding.ActivityRepoReadmeBinding
 import com.plweegie.android.squashtwo.rest.GitHubService
 import io.noties.markwon.Markwon
-import kotlinx.android.synthetic.main.activity_repo_readme.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -38,10 +37,14 @@ class RepoReadmeActivity : AppCompatActivity() {
     private var readmeOwner: String? = null
     private var readmeName: String? = null
 
+    private lateinit var binding: ActivityRepoReadmeBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as App).netComponent.inject(this)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_repo_readme)
+
+        binding = ActivityRepoReadmeBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         markwon = Markwon.create(this)
 
         readmeOwner = intent.getStringExtra(README_OWNER_EXTRA)
@@ -55,7 +58,7 @@ class RepoReadmeActivity : AppCompatActivity() {
                 val readme = apiService.getReadme(it, readmeName!!)
                 val data = Base64.decode(readme.content, Base64.DEFAULT)
                 withContext(Dispatchers.Main) {
-                    markwon.setMarkdown(readme_content_tv, String(data, Charsets.UTF_8))
+                    markwon.setMarkdown(binding.readmeContentTv, String(data, Charsets.UTF_8))
                 }
             }
         }

@@ -31,13 +31,13 @@ import androidx.appcompat.app.AppCompatActivity
 import com.plweegie.android.squashtwo.App
 import com.plweegie.android.squashtwo.R
 import com.plweegie.android.squashtwo.data.Commit
+import com.plweegie.android.squashtwo.databinding.CommitViewBinding
 import com.plweegie.android.squashtwo.rest.GitHubService
 import com.plweegie.android.squashtwo.utils.DateUtils
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.observers.DisposableObserver
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.commit_view.*
 import java.text.ParseException
 import javax.inject.Inject
 
@@ -49,18 +49,21 @@ class LastCommitDetailsActivity : AppCompatActivity() {
     private var repoProps: Array<String> = arrayOf()
     private var disposable: Disposable? = null
 
+    private lateinit var binding: CommitViewBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as App).netComponent.inject(this)
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.commit_view)
+        binding = CommitViewBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         repoProps = intent.getStringArrayExtra(EXTRA_REPO_PROPS) ?: arrayOf()
 
         if (savedInstanceState != null && savedInstanceState.containsKey(TEXT_VIEW_CONTENTS)) {
-            commit_message_tv?.text = savedInstanceState.getCharSequenceArray(TEXT_VIEW_CONTENTS)!![0]
-            commit_info_tv?.text = savedInstanceState.getCharSequenceArray(TEXT_VIEW_CONTENTS)!![1]
-            commit_date_tv?.text = savedInstanceState.getCharSequenceArray(TEXT_VIEW_CONTENTS)!![2]
+            binding.commitMessageTv.text = savedInstanceState.getCharSequenceArray(TEXT_VIEW_CONTENTS)!![0]
+            binding.commitInfoTv.text = savedInstanceState.getCharSequenceArray(TEXT_VIEW_CONTENTS)!![1]
+            binding.commitDateTv.text = savedInstanceState.getCharSequenceArray(TEXT_VIEW_CONTENTS)!![2]
             return
         }
 
@@ -78,9 +81,9 @@ class LastCommitDetailsActivity : AppCompatActivity() {
     public override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putCharSequenceArray(TEXT_VIEW_CONTENTS, arrayOf(
-                commit_message_tv?.text,
-                commit_info_tv?.text,
-                commit_date_tv?.text))
+                binding.commitMessageTv.text,
+                binding.commitInfoTv.text,
+                binding.commitDateTv.text))
     }
 
     private fun updateUI() {
@@ -92,10 +95,10 @@ class LastCommitDetailsActivity : AppCompatActivity() {
                     override fun onNext(commits: List<Commit>) {
                         val commit = commits
                                 .first { !it.commitBody.message.startsWith("Merge pull") }
-                        commit_message_tv?.text = commit.commitBody.message
+                        binding.commitMessageTv.text = commit.commitBody.message
                                 .split("\n").toTypedArray()[0]
-                        commit_info_tv?.text = buildCommitInfo(commit)
-                        commit_date_tv?.text = buildCommitDate(commit)
+                        binding.commitInfoTv.text = buildCommitInfo(commit)
+                        binding.commitDateTv.text = buildCommitDate(commit)
                     }
 
                     override fun onError(e: Throwable) {}

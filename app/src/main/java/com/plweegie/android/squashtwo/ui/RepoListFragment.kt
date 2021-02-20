@@ -39,12 +39,12 @@ import com.plweegie.android.squashtwo.R
 import com.plweegie.android.squashtwo.adapters.BaseGithubAdapter
 import com.plweegie.android.squashtwo.adapters.RepoAdapter
 import com.plweegie.android.squashtwo.data.RepoEntry
+import com.plweegie.android.squashtwo.databinding.ListFragmentBinding
 import com.plweegie.android.squashtwo.rest.GitHubService
 import com.plweegie.android.squashtwo.utils.PaginationScrollListener
 import com.plweegie.android.squashtwo.utils.QueryPreferences
 import com.plweegie.android.squashtwo.viewmodels.RepoListViewModel
 import com.plweegie.android.squashtwo.viewmodels.RepoListViewModelFactory
-import kotlinx.android.synthetic.main.list_fragment.*
 import javax.inject.Inject
 
 
@@ -78,6 +78,9 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
         _, _ -> repoAdapter.sort()
     }
 
+    private var _binding: ListFragmentBinding? = null
+    private val binding get() = _binding!!
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -89,8 +92,9 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
     }
 
     override fun onCreateView(inflater: LayoutInflater, parent: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        val v = inflater.inflate(R.layout.list_fragment, parent, false)
+                              savedInstanceState: Bundle?): View {
+        _binding = ListFragmentBinding.inflate(inflater, parent, false)
+        val v = binding.root
 
         imm = activity?.getSystemService(Context
                 .INPUT_METHOD_SERVICE) as InputMethodManager
@@ -108,9 +112,9 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        load_indicator?.visibility = View.GONE
+        binding.loadIndicator.visibility = View.GONE
 
-        commits_recycler_view?.apply {
+        binding.commitsRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = manager
             addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
@@ -140,6 +144,11 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
         sharedPrefs.registerOnSharedPreferenceChangeListener(listener)
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         sharedPrefs.unregisterOnSharedPreferenceChangeListener(listener)
@@ -161,8 +170,8 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
                     isIconified = true
                 }
 
-                commits_recycler_view?.visibility = View.INVISIBLE
-                load_indicator?.visibility = View.VISIBLE
+                binding.commitsRecyclerView.visibility = View.INVISIBLE
+                binding.loadIndicator.visibility = View.VISIBLE
 
                 queryPrefs.storedQuery = string
                 apiQuery = queryPrefs.storedQuery
@@ -216,17 +225,17 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
 
             when (state) {
                 is RepoListViewModel.LoadingState.Loading -> {
-                    commits_recycler_view?.visibility = View.INVISIBLE
-                    load_indicator?.visibility = View.VISIBLE
+                    binding.commitsRecyclerView.visibility = View.INVISIBLE
+                    binding.loadIndicator.visibility = View.VISIBLE
                 }
                 is RepoListViewModel.LoadingState.Failed -> {
                     Toast.makeText(activity, "No repositories found for $apiQuery",
                             Toast.LENGTH_SHORT).show()
-                    load_indicator?.visibility = View.GONE
+                    binding.loadIndicator.visibility = View.GONE
                 }
                 is RepoListViewModel.LoadingState.Succeeded -> {
-                    commits_recycler_view?.visibility = View.VISIBLE
-                    load_indicator?.visibility = View.GONE
+                    binding.commitsRecyclerView.visibility = View.VISIBLE
+                    binding.loadIndicator.visibility = View.GONE
                     processRepos(state.repos)
                 }
             }
@@ -239,7 +248,7 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
         if (repos.isNullOrEmpty()) {
             Toast.makeText(activity, "No repositories found for $apiQuery",
                     Toast.LENGTH_SHORT).show()
-            load_indicator?.visibility = View.GONE
+            binding.loadIndicator.visibility = View.GONE
             return
         } else {
             repoAdapter.apply {
