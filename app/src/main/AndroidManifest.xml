@@ -2,20 +2,50 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.plweegie.android.squashtwo">
 
+    <permission android:name="com.plweegie.android.squashtwo.PRIVATE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="com.plweegie.android.squashtwo.PRIVATE" />
+
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.SquashTwo">
-        <activity android:name=".MainActivity">
+        android:theme="@style/AppTheme">
+        <activity android:name=".ui.GithubPagerActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ui.LoginActivity" />
+        <activity android:name=".auth.OauthActivity"/>
+        <activity android:name=".ui.LastCommitDetailsActivity"
+            android:parentActivityName=".ui.GithubPagerActivity" />
+        <activity android:name=".ui.SettingsActivity"
+            android:parentActivityName=".ui.GithubPagerActivity" />
+        <activity android:name=".ui.RepoReadmeActivity" />
+
+        <receiver android:name=".receivers.NotificationReceiver"
+            android:exported="false">
+            <intent-filter android:priority="-999">
+                <action android:name="com.plweegie.android.squashtwo.SHOW_NOTIFICATION" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".receivers.StartupReceiver"  android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
