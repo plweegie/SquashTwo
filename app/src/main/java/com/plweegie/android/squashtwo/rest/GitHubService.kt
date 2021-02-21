@@ -25,7 +25,6 @@ import com.plweegie.android.squashtwo.data.Commit
 import com.plweegie.android.squashtwo.data.RepoEntry
 import com.plweegie.android.squashtwo.data.RepoReadme
 
-import io.reactivex.Observable
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -44,9 +43,4 @@ interface GitHubService {
     @GET("repos/{owner}/{repo}/readme")
     suspend fun getReadme(@Path("owner") owner: String,
                           @Path("repo") repo: String): RepoReadme
-    
-    @GET("repos/{owner}/{repo}/commits")
-    fun getCommitsObservable(@Path("owner") owner: String,
-                           @Path("repo") repo: String,
-                           @Query("per_page") perPage: Int): Observable<List<Commit>>
 }

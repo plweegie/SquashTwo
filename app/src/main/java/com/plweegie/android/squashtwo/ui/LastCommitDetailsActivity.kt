@@ -27,6 +27,7 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.util.Log
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.plweegie.android.squashtwo.App
 import com.plweegie.android.squashtwo.R
@@ -34,10 +35,8 @@ import com.plweegie.android.squashtwo.data.Commit
 import com.plweegie.android.squashtwo.databinding.CommitViewBinding
 import com.plweegie.android.squashtwo.rest.GitHubService
 import com.plweegie.android.squashtwo.utils.DateUtils
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.observers.DisposableObserver
-import io.reactivex.schedulers.Schedulers
+import com.plweegie.android.squashtwo.viewmodels.LastCommitDetailsViewModel
+import com.plweegie.android.squashtwo.viewmodels.LastCommitDetailsViewModelFactory
 import java.text.ParseException
 import javax.inject.Inject
 
@@ -46,8 +45,11 @@ class LastCommitDetailsActivity : AppCompatActivity() {
     @Inject
     lateinit var service: GitHubService
 
+    @Inject
+    lateinit var viewModelFactory: LastCommitDetailsViewModelFactory
+
+    private val viewModel by viewModels<LastCommitDetailsViewModel> { viewModelFactory }
     private var repoProps: Array<String> = arrayOf()
-    private var disposable: Disposable? = null
 
     private lateinit var binding: CommitViewBinding
 
@@ -71,13 +73,6 @@ class LastCommitDetailsActivity : AppCompatActivity() {
         updateUI()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        if (disposable?.isDisposed == false) {
-            disposable?.dispose()
-        }
-    }
-
     public override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putCharSequenceArray(TEXT_VIEW_CONTENTS, arrayOf(
@@ -87,24 +82,14 @@ class LastCommitDetailsActivity : AppCompatActivity() {
     }
 
     private fun updateUI() {
-        val call = service.getCommitsObservable(repoProps[0], repoProps[1], 5)
+        viewModel.getLastCommit(repoProps[0], repoProps[1])
 
-        disposable = call.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(object : DisposableObserver<List<Commit>>() {
-                    override fun onNext(commits: List<Commit>) {
-                        val commit = commits
-                                .first { !it.commitBody.message.startsWith("Merge pull") }
-                        binding.commitMessageTv.text = commit.commitBody.message
-                                .split("\n").toTypedArray()[0]
-                        binding.commitInfoTv.text = buildCommitInfo(commit)
-                        binding.commitDateTv.text = buildCommitDate(commit)
-                    }
-
-                    override fun onError(e: Throwable) {}
-
-                    override fun onComplete() {}
-                })
+        viewModel.lastCommit.observe(this, { commit ->
+            binding.commitMessageTv.text = commit.commitBody.message
+                .split("\n").toTypedArray()[0]
+            binding.commitInfoTv.text = buildCommitInfo(commit)
+            binding.commitDateTv.text = buildCommitDate(commit)
+        })
     }
 
     private fun buildCommitInfo(commit: Commit): CharSequence {

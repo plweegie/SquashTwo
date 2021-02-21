@@ -2,15 +2,15 @@ package com.plweegie.android.squashtwo.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.plweegie.android.squashtwo.rest.GitHubService
+import com.plweegie.android.squashtwo.data.RepoRepository
 import javax.inject.Inject
 import javax.inject.Provider
 
 
 class LastCommitDetailsViewModelFactory @Inject constructor(
-        private val service: Provider<GitHubService>
+        private val repository: Provider<RepoRepository>
 ) : ViewModelProvider.NewInstanceFactory() {
 
     override fun <T : ViewModel?> create(modelClass: Class<T>): T =
-            LastCommitDetailsViewModel(service.get()) as T
+            LastCommitDetailsViewModel(repository.get()) as T
 }

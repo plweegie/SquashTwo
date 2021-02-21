@@ -17,6 +17,10 @@ class RepoRepository @Inject constructor(database: RepoDatabase,
     suspend fun fetchRepos(userName: String, page: Int) =
             network.getRepos(userName, page)
 
+    suspend fun getLastCommit(userName: String, repoName: String): Commit =
+            network.getCommits(userName, repoName, 5)
+                    .first { !it.commitBody.message.startsWith("Merge pull") }
+
     suspend fun getFavoritesAsync() = repoDao.getFavoritesAsync()
 
     suspend fun addFavorite(repo: RepoEntry) {

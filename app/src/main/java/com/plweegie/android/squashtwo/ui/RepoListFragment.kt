@@ -31,7 +31,6 @@ import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.plweegie.android.squashtwo.App
@@ -220,7 +219,7 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
     }
 
     private fun observeUI() {
-        viewModel.loadingState.observe(viewLifecycleOwner, Observer { state ->
+        viewModel.loadingState.observe(viewLifecycleOwner, { state ->
             isContentLoading = false
 
             when (state) {
