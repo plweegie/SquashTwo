@@ -1,19 +1,17 @@
 package com.plweegie.android.squashtwo.ui;
 
 import android.os.Bundle;
-import android.preference.PreferenceFragment;
 
-import androidx.annotation.Nullable;
+import androidx.preference.PreferenceFragmentCompat;
 
 import com.plweegie.android.squashtwo.R;
 
-public class SettingsFragment extends PreferenceFragment {
+public class SettingsFragment extends PreferenceFragmentCompat {
 
     public static final String KEY_PREF_SORT_BY_SETTING = "pref_sortBySetting";
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.preferences);
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        setPreferencesFromResource(R.xml.preferences, rootKey);
     }
 }
