@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:padding="16dp">
     
@@ -17,7 +17,9 @@
             android:id="@+id/repo_name_tv"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:fontFamily="@font/open_sans"
             android:textColor="@color/colorMainText"
             android:textAppearance="?android:textAppearanceMedium" />
         
@@ -25,7 +27,7 @@
             android:id="@+id/repo_language_tv"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:fontFamily="sans-serif"
+            android:fontFamily="@font/open_sans"
             android:textStyle="italic"
             android:textAppearance="?android:textAppearanceSmall" />
         
@@ -37,7 +39,7 @@
         android:layout_height="match_parent"
         android:layout_width="0dp"
         android:layout_weight="1"
-        android:tint="@color/colorAccent"
+        app:tint="@color/colorAccent"
         android:tintMode="src_in" />
 
     <ImageView
@@ -62,11 +64,12 @@
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             android:src="@drawable/ic_star_rate_black_18dp"
-            android:tint="@color/colorPrimary"
+            app:tint="@color/colorPrimary"
             android:tintMode="src_in" />
         
         <TextView
             android:id="@+id/stars_tv"
+            android:fontFamily="@font/open_sans"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_centerVertical="true"

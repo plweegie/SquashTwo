@@ -23,14 +23,19 @@ package com.plweegie.android.squashtwo.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
+import android.view.WindowInsetsController;
 
+import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.plweegie.android.squashtwo.R;
 import com.plweegie.android.squashtwo.adapters.GithubPagerAdapter;
+import com.plweegie.android.squashtwo.databinding.ViewPagerBinding;
 import com.plweegie.android.squashtwo.utils.AuthUtils;
 import com.plweegie.android.squashtwo.utils.WorkManagerUtil;
 
@@ -40,12 +45,27 @@ public class GithubPagerActivity  extends VisibleActivity {
     private GithubPagerAdapter mAdapter;
     private TabLayout mTabLayout;
     private SharedPreferences mPrefs;
+    private ViewPagerBinding mBinding;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        setContentView(R.layout.view_pager);
+
+        mBinding = ViewPagerBinding.inflate(getLayoutInflater());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            getWindow().getInsetsController().setSystemBarsAppearance(
+                    WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
+                    WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+            );
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
+
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.colorToolbar));
+
+        setContentView(mBinding.getRoot());
+        setSupportActionBar(mBinding.mainToolbar);
 
         mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 

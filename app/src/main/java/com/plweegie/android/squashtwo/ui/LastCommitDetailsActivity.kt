@@ -27,8 +27,11 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.util.Log
+import android.view.View
+import android.view.WindowInsetsController
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.plweegie.android.squashtwo.App
 import com.plweegie.android.squashtwo.R
 import com.plweegie.android.squashtwo.data.Commit
@@ -57,8 +60,20 @@ class LastCommitDetailsActivity : AppCompatActivity() {
         (application as App).netComponent.inject(this)
         super.onCreate(savedInstanceState)
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.insetsController?.setSystemBarsAppearance(
+                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
+                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+            )
+        } else {
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        }
+
+        window.statusBarColor = ContextCompat.getColor(this, R.color.colorToolbar)
+
         binding = CommitViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setSupportActionBar(binding.mainToolbar)
 
         repoProps = intent.getStringArrayExtra(EXTRA_REPO_PROPS) ?: arrayOf()
 
