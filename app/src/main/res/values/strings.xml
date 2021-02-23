@@ -40,4 +40,6 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+
+    <string name="no_readme_found">We\'re sorry - this repo does not have README</string>
 </resources>

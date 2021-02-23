@@ -17,6 +17,7 @@ import com.plweegie.android.squashtwo.rest.GitHubService
 import io.noties.markwon.Markwon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 import javax.inject.Inject
 
 
@@ -73,10 +74,15 @@ class RepoReadmeActivity : AppCompatActivity() {
     private fun updateUI() {
         lifecycleScope.launchWhenResumed {
             readmeOwner?.let {
-                val readme = apiService.getReadme(it, readmeName!!)
-                val data = Base64.decode(readme.content, Base64.DEFAULT)
-                withContext(Dispatchers.Main) {
-                    markwon.setMarkdown(binding.readmeContentTv, String(data, Charsets.UTF_8))
+                try {
+                    val readme = apiService.getReadme(it, readmeName!!)
+                    val data = Base64.decode(readme.content, Base64.DEFAULT)
+
+                    withContext(Dispatchers.Main) {
+                        markwon.setMarkdown(binding.readmeContentTv, String(data, Charsets.UTF_8))
+                    }
+                } catch(e: HttpException) {
+                    markwon.setMarkdown(binding.readmeContentTv, getString(R.string.no_readme_found))
                 }
             }
         }

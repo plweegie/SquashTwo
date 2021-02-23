@@ -105,7 +105,7 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
         manager = LinearLayoutManager(activity)
 
         apiQuery = queryPrefs.storedQuery ?: ""
-        fetchRepos(apiQuery!!, currentPage)
+        fetchRepos(apiQuery, currentPage)
 
         return v
     }
@@ -124,7 +124,7 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
                     currentPage++
                     Toast.makeText(activity, getString(R.string.loading_more), Toast.LENGTH_SHORT)
                             .show()
-                    fetchRepos(apiQuery!!, currentPage)
+                    fetchRepos(apiQuery, currentPage)
                 }
 
                 override fun getTotalPageCount(): Int = MAXIMUM_LIST_LENGTH
@@ -180,7 +180,7 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
                 currentPage = START_PAGE
 
                 repoAdapter.clear()
-                fetchRepos(apiQuery!!, currentPage)
+                fetchRepos(apiQuery, currentPage)
 
                 return true
             }
@@ -214,8 +214,10 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
         startActivity(intent)
     }
 
-    private fun fetchRepos(query: String, page: Int) {
-        viewModel.fetchData(query, page)
+    private fun fetchRepos(query: String?, page: Int) {
+        query.takeUnless { it.isNullOrBlank() }?.let {
+            viewModel.fetchData(it, page)
+        }
     }
 
     private fun observeUI() {
