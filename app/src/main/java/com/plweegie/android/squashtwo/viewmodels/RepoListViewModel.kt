@@ -1,11 +1,11 @@
 package com.plweegie.android.squashtwo.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.plweegie.android.squashtwo.data.RepoEntry
 import com.plweegie.android.squashtwo.data.RepoRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 
@@ -17,10 +17,11 @@ class RepoListViewModel(private val repository: RepoRepository) : ViewModel() {
         class Succeeded(val repos: List<RepoEntry>?) : LoadingState()
     }
 
-    val loadingState: LiveData<LoadingState>
+    val loadingState: StateFlow<LoadingState>
         get() = _loadingState
 
-    private val _loadingState: MutableLiveData<LoadingState> = MutableLiveData()
+    private val _loadingState: MutableStateFlow<LoadingState> =
+        MutableStateFlow(LoadingState.Succeeded(emptyList()))
 
     fun fetchData(userName: String, page: Int) {
         _loadingState.value = LoadingState.Loading
@@ -28,9 +29,9 @@ class RepoListViewModel(private val repository: RepoRepository) : ViewModel() {
         launchInScope {
             try {
                 val result = repository.fetchRepos(userName, page)
-                _loadingState.postValue(LoadingState.Succeeded(result))
+                _loadingState.value = LoadingState.Succeeded(result)
             } catch (e: Exception) {
-                _loadingState.postValue(LoadingState.Failed(e))
+                _loadingState.value = LoadingState.Failed(e)
             }
         }
     }
