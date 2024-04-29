@@ -72,6 +72,12 @@ class RepoReadmeActivity : AppCompatActivity() {
 
         readmeOwner = intent.getStringExtra(README_OWNER_EXTRA)
         readmeName = intent.getStringExtra(README_NAME_EXTRA)
+
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        binding.mainToolbar.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
+
         updateUI()
     }
 

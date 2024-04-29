@@ -57,8 +57,25 @@ class FaveListFragment : Fragment(), FaveAdapter.FaveAdapterOnClickHandler,
 
     private val viewModel by viewModels<FaveListViewModel> { viewModelFactory }
     private lateinit var faveAdapter: FaveAdapter
+    private lateinit var menuHost: MenuHost
 
     private lateinit var binding: ListFragmentBinding
+
+    private val menuProvider = object : MenuProvider {
+        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+            menuInflater.inflate(R.menu.fave_list_menu, menu)
+        }
+
+        override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+            return when (menuItem.itemId) {
+                R.id.clear_db -> {
+                    viewModel.deleteAllRepos()
+                    true
+                }
+                else -> true
+            }
+        }
+    }
 
     override fun onAttach(context: Context) {
         (activity?.application as App).netComponent.inject(this)
@@ -79,22 +96,7 @@ class FaveListFragment : Fragment(), FaveAdapter.FaveAdapterOnClickHandler,
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val menuHost: MenuHost = requireActivity()
-        menuHost.addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.fave_list_menu, menu)
-            }
-
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                return when (menuItem.itemId) {
-                    R.id.clear_db -> {
-                        viewModel.deleteAllRepos()
-                        true
-                    }
-                    else -> true
-                }
-            }
-        })
+        menuHost = requireActivity()
 
         binding.loadIndicator.visibility = View.GONE
 
@@ -112,6 +114,16 @@ class FaveListFragment : Fragment(), FaveAdapter.FaveAdapterOnClickHandler,
                     faveAdapter.setContent(it)
                 }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        menuHost.addMenuProvider(menuProvider)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        menuHost.removeMenuProvider(menuProvider)
     }
 
     override fun onFaveDeleteClicked(repoId: Long) {

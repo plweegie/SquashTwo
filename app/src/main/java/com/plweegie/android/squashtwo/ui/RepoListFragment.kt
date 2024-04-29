@@ -72,6 +72,7 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
     private lateinit var repoAdapter: RepoAdapter
     private lateinit var manager: LinearLayoutManager
     private lateinit var imm: InputMethodManager
+    private lateinit var menuHost: MenuHost
 
     private var isContentLoading = false
     private var isContentLastPage = false
@@ -81,6 +82,23 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
 
     private val listener = SharedPreferences.OnSharedPreferenceChangeListener {
         _, _ -> repoAdapter.sort()
+    }
+
+    private val menuProvider = object : MenuProvider {
+        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+            setupOptionsMenu(menu, menuInflater)
+        }
+
+        override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+            return when (menuItem.itemId) {
+                R.id.sort_by -> {
+                    val intent = Intent(activity, SettingsActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                else -> true
+            }
+        }
     }
 
     private lateinit var binding: ListFragmentBinding
@@ -112,24 +130,7 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val menuHost: MenuHost = requireActivity()
-        menuHost.addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                setupOptionsMenu(menu, menuInflater)
-            }
-
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                return when (menuItem.itemId) {
-                    R.id.sort_by -> {
-                        val intent = Intent(activity, SettingsActivity::class.java)
-                        startActivity(intent)
-                        true
-                    }
-                    else -> true
-                }
-            }
-        })
-
+        menuHost = requireActivity()
 
         binding.loadIndicator.visibility = View.GONE
 
@@ -161,6 +162,12 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
     override fun onResume() {
         super.onResume()
         sharedPrefs.registerOnSharedPreferenceChangeListener(listener)
+        menuHost.addMenuProvider(menuProvider)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        menuHost.removeMenuProvider(menuProvider)
     }
 
     override fun onDestroy() {

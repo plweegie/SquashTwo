@@ -19,6 +19,7 @@ public class SettingsActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBinding = ActivitySettingsBinding.inflate(getLayoutInflater());
+        setContentView(mBinding.getRoot());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             getWindow().getInsetsController().setSystemBarsAppearance(
@@ -31,10 +32,10 @@ public class SettingsActivity extends AppCompatActivity {
 
         getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.colorToolbar));
 
-        setContentView(mBinding.getRoot());
         setSupportActionBar(mBinding.mainToolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mBinding.mainToolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.settings_container, new SettingsFragment())

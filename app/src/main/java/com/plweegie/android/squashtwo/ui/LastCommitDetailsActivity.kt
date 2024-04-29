@@ -38,7 +38,7 @@ import androidx.lifecycle.lifecycleScope
 import com.plweegie.android.squashtwo.App
 import com.plweegie.android.squashtwo.R
 import com.plweegie.android.squashtwo.data.Commit
-import com.plweegie.android.squashtwo.databinding.CommitViewBinding
+import com.plweegie.android.squashtwo.databinding.ActivityLastCommitDetailsBinding
 import com.plweegie.android.squashtwo.rest.GitHubService
 import com.plweegie.android.squashtwo.utils.DateUtils
 import com.plweegie.android.squashtwo.viewmodels.LastCommitDetailsViewModel
@@ -58,13 +58,13 @@ class LastCommitDetailsActivity : AppCompatActivity() {
     private val viewModel by viewModels<LastCommitDetailsViewModel> { viewModelFactory }
     private var repoProps: Array<String> = arrayOf()
 
-    private lateinit var binding: CommitViewBinding
+    private lateinit var binding: ActivityLastCommitDetailsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as App).netComponent.inject(this)
         super.onCreate(savedInstanceState)
 
-        binding = CommitViewBinding.inflate(layoutInflater)
+        binding = ActivityLastCommitDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -90,6 +90,10 @@ class LastCommitDetailsActivity : AppCompatActivity() {
         }
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        binding.mainToolbar.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
+
         updateUI()
     }
 
