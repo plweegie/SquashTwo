@@ -21,46 +21,33 @@
  */
 package com.plweegie.android.squashtwo.adapters;
 
-import android.content.Context;
-
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.fragment.app.FragmentActivity;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.plweegie.android.squashtwo.R;
 import com.plweegie.android.squashtwo.ui.FaveListFragment;
 import com.plweegie.android.squashtwo.ui.RepoListFragment;
 
 
-public class GithubPagerAdapter extends FragmentStatePagerAdapter {
-    
-    private Context mContext;
-    private int[] mTabTitles = new int[] {R.string.list_repos, R.string.list_faves};
-    
-    public GithubPagerAdapter(FragmentManager fm, Context context) {
-        super(fm);
-        mContext = context;
+public class GithubPagerAdapter extends FragmentStateAdapter {
+
+    public GithubPagerAdapter(FragmentActivity activity) {
+        super(activity);
     }
-    
+
+    @NonNull
     @Override
-    public Fragment getItem(int position) {
-        switch(position) {
-            case 0:
-                return RepoListFragment.newInstance();
-            case 1:
-                return FaveListFragment.newInstance();
-            default:
-                throw new IllegalArgumentException("Position error in ViewPager");
-        }
+    public Fragment createFragment(int position) {
+        return switch (position) {
+            case 0 -> RepoListFragment.newInstance();
+            case 1 -> FaveListFragment.newInstance();
+            default -> throw new IllegalArgumentException("Position error in ViewPager");
+        };
     }
-    
+
     @Override
-    public int getCount() {
+    public int getItemCount() {
         return 2;
-    }
-    
-    @Override
-    public String getPageTitle(int position) {
-        return mContext.getResources().getString(mTabTitles[position]);
     }
 }

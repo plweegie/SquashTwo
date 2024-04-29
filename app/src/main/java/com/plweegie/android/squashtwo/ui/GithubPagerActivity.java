@@ -30,9 +30,10 @@ import android.view.WindowInsetsController;
 
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
-import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.plweegie.android.squashtwo.R;
 import com.plweegie.android.squashtwo.adapters.GithubPagerAdapter;
 import com.plweegie.android.squashtwo.databinding.ViewPagerBinding;
@@ -40,18 +41,14 @@ import com.plweegie.android.squashtwo.utils.AuthUtils;
 import com.plweegie.android.squashtwo.utils.WorkManagerUtil;
 
 public class GithubPagerActivity  extends VisibleActivity {
-    
-    private ViewPager mViewPager;
-    private GithubPagerAdapter mAdapter;
-    private TabLayout mTabLayout;
-    private SharedPreferences mPrefs;
-    private ViewPagerBinding mBinding;
-    
+
+    private final int[] mTabTitles = new int[] {R.string.list_repos, R.string.list_faves};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mBinding = ViewPagerBinding.inflate(getLayoutInflater());
+        ViewPagerBinding mBinding = ViewPagerBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -67,22 +64,23 @@ public class GithubPagerActivity  extends VisibleActivity {
 
         setSupportActionBar(mBinding.mainToolbar);
 
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         if(!mPrefs.contains(AuthUtils.PREFERENCE_NAME)) {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
         }
-        
-        mViewPager = findViewById(R.id.pager);
-        mTabLayout = findViewById(R.id.list_tabs);
-        mAdapter = new GithubPagerAdapter(getSupportFragmentManager(),
-                GithubPagerActivity.this);
+
+        ViewPager2 mViewPager = findViewById(R.id.pager);
+        TabLayout mTabLayout = findViewById(R.id.list_tabs);
+        GithubPagerAdapter mAdapter = new GithubPagerAdapter(GithubPagerActivity.this);
         
         mViewPager.setAdapter(mAdapter);
         mViewPager.setOffscreenPageLimit(2);
-        
-        mTabLayout.setupWithViewPager(mViewPager);
+
+        new TabLayoutMediator(mTabLayout, mViewPager,
+                (tab, position) -> tab.setText(getResources().getString(mTabTitles[position]))
+        ).attach();
 
         WorkManagerUtil.enqueueWorkRequest(this);
     }
