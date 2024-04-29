@@ -1,16 +1,16 @@
 package com.plweegie.android.squashtwo.data
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface RepoDao {
 
     @get:Query("SELECT * FROM repos")
-    val favorites: LiveData<List<RepoEntry>>
+    val favorites: Flow<List<RepoEntry>>
 
     @Query("SELECT * FROM repos")
     suspend fun getFavoritesAsync(): List<RepoEntry>

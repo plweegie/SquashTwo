@@ -29,8 +29,13 @@ import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.plweegie.android.squashtwo.App
@@ -44,6 +49,7 @@ import com.plweegie.android.squashtwo.utils.PaginationScrollListener
 import com.plweegie.android.squashtwo.utils.QueryPreferences
 import com.plweegie.android.squashtwo.viewmodels.RepoListViewModel
 import com.plweegie.android.squashtwo.viewmodels.RepoListViewModelFactory
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -77,13 +83,7 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
         _, _ -> repoAdapter.sort()
     }
 
-    private var _binding: ListFragmentBinding? = null
-    private val binding get() = _binding!!
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
+    private lateinit var binding: ListFragmentBinding
 
     override fun onAttach(context: Context) {
         (activity?.application as App).netComponent.inject(this)
@@ -92,7 +92,7 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
 
     override fun onCreateView(inflater: LayoutInflater, parent: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        _binding = ListFragmentBinding.inflate(inflater, parent, false)
+        binding = ListFragmentBinding.inflate(inflater, parent, false)
         val v = binding.root
 
         imm = activity?.getSystemService(Context
@@ -105,12 +105,32 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
         manager = LinearLayoutManager(activity)
 
         apiQuery = queryPrefs.storedQuery ?: ""
+
         fetchRepos(apiQuery, currentPage)
 
         return v
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                setupOptionsMenu(menu, menuInflater)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.sort_by -> {
+                        val intent = Intent(activity, SettingsActivity::class.java)
+                        startActivity(intent)
+                        true
+                    }
+                    else -> true
+                }
+            }
+        })
+
+
         binding.loadIndicator.visibility = View.GONE
 
         binding.commitsRecyclerView.apply {
@@ -143,18 +163,12 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
         sharedPrefs.registerOnSharedPreferenceChangeListener(listener)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         sharedPrefs.unregisterOnSharedPreferenceChangeListener(listener)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
+    private fun setupOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.repo_list_menu, menu)
 
         val searchItem = menu.findItem(R.id.repo_search)
@@ -194,16 +208,6 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean =
-        when (item.itemId) {
-            R.id.sort_by -> {
-                val intent = Intent(activity, SettingsActivity::class.java)
-                startActivity(intent)
-                super.onOptionsItemSelected(item)
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-
     override fun onAddFavoriteClick(repo: RepoEntry) {
         viewModel.addFavorite(repo)
         queryPrefs.lastResultDate = System.currentTimeMillis()
@@ -221,44 +225,48 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
     }
 
     private fun observeUI() {
-        viewModel.loadingState.observe(viewLifecycleOwner, { state ->
-            isContentLoading = false
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.loadingState
+                .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+                .collect { state ->
+                    isContentLoading = false
 
-            when (state) {
-                is RepoListViewModel.LoadingState.Loading -> {
-                    binding.commitsRecyclerView.visibility = View.INVISIBLE
-                    binding.loadIndicator.visibility = View.VISIBLE
+                    when (state) {
+                        is RepoListViewModel.LoadingState.Loading -> {
+                            binding.commitsRecyclerView.visibility = View.INVISIBLE
+                            binding.loadIndicator.visibility = View.VISIBLE
+                        }
+                        is RepoListViewModel.LoadingState.Failed -> {
+                            Toast.makeText(activity, "Error loading repos",
+                                Toast.LENGTH_SHORT).show()
+                            binding.loadIndicator.visibility = View.GONE
+                        }
+                        is RepoListViewModel.LoadingState.Succeeded -> {
+                            binding.commitsRecyclerView.visibility = View.VISIBLE
+                            binding.loadIndicator.visibility = View.GONE
+                            processRepos(state.repos)
+                        }
+                    }
                 }
-                is RepoListViewModel.LoadingState.Failed -> {
-                    Toast.makeText(activity, "No repositories found for $apiQuery",
-                            Toast.LENGTH_SHORT).show()
-                    binding.loadIndicator.visibility = View.GONE
-                }
-                is RepoListViewModel.LoadingState.Succeeded -> {
-                    binding.commitsRecyclerView.visibility = View.VISIBLE
-                    binding.loadIndicator.visibility = View.GONE
-                    processRepos(state.repos)
-                }
-            }
-        })
+        }
     }
 
-    private fun processRepos(repos: List<RepoEntry>?) {
+    private fun processRepos(repoList: List<RepoEntry>?) {
         val apiQuery = queryPrefs.storedQuery ?: ""
 
-        if (repos.isNullOrEmpty()) {
+        if (repoList.isNullOrEmpty()) {
             Toast.makeText(activity, "No repositories found for $apiQuery",
                     Toast.LENGTH_SHORT).show()
             binding.loadIndicator.visibility = View.GONE
             return
         } else {
             repoAdapter.apply {
-                addAll(repos)
+                addAll(repoList)
                 sort()
             }
         }
 
-        if (repos.size < MAXIMUM_LIST_LENGTH) {
+        if (repoList.size < MAXIMUM_LIST_LENGTH) {
             isContentLastPage = true
         }
     }

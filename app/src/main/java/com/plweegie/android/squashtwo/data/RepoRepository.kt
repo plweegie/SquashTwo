@@ -1,7 +1,7 @@
 package com.plweegie.android.squashtwo.data
 
-import androidx.lifecycle.LiveData
 import com.plweegie.android.squashtwo.rest.GitHubService
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -11,7 +11,7 @@ class RepoRepository @Inject constructor(database: RepoDatabase,
 
     private val repoDao: RepoDao = database.repoDao()
 
-    val allFavorites: LiveData<List<RepoEntry>>
+    val allFavorites: Flow<List<RepoEntry>>
         get() = repoDao.favorites
 
     suspend fun fetchRepos(userName: String, page: Int) =

@@ -12,7 +12,7 @@ class StartupReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent?.action == Intent.ACTION_BOOT_COMPLETED && context != null) {
             WorkManagerUtil.enqueueWorkRequest(context,
-                    policy = ExistingPeriodicWorkPolicy.REPLACE)
+                    policy = ExistingPeriodicWorkPolicy.UPDATE)
         }
     }
 }

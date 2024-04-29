@@ -8,7 +8,6 @@ import com.plweegie.android.squashtwo.rest.DaggerNetComponent
 import com.plweegie.android.squashtwo.rest.NetComponent
 import com.plweegie.android.squashtwo.rest.NetModule
 import com.plweegie.android.squashtwo.rest.SharedPrefModule
-import com.squareup.leakcanary.LeakCanary
 
 class App : Application() {
 
@@ -19,15 +18,6 @@ class App : Application() {
                 .sharedPrefModule(SharedPrefModule())
                 .roomModule(RoomModule(DATABASE_NAME))
                 .build()
-    }
-
-    override fun onCreate() {
-        super.onCreate()
-
-        if (LeakCanary.isInAnalyzerProcess(this)) {
-            return
-        }
-        LeakCanary.install(this)
     }
 
     companion object {

@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -16,8 +17,22 @@ public abstract class VisibleActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         IntentFilter filter = new IntentFilter(CommitPollWorker.ACTION_SHOW_NOTIFICATION);
-        this.registerReceiver(mOnShowNotification, filter,
-                CommitPollWorker.PERMISSION_PRIVATE, null);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            this.registerReceiver(
+                    mOnShowNotification,
+                    filter,
+                    CommitPollWorker.PERMISSION_PRIVATE,
+                    null,
+                    Context.RECEIVER_NOT_EXPORTED
+            );
+        } else {
+            this.registerReceiver(
+                    mOnShowNotification,
+                    filter,
+                    CommitPollWorker.PERMISSION_PRIVATE,
+                    null
+            );
+        }
     }
 
     @Override
@@ -26,7 +41,7 @@ public abstract class VisibleActivity extends AppCompatActivity {
         this.unregisterReceiver(mOnShowNotification);
     }
 
-    private BroadcastReceiver mOnShowNotification = new BroadcastReceiver() {
+    private final BroadcastReceiver mOnShowNotification = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             setResultCode(Activity.RESULT_CANCELED);

@@ -29,6 +29,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBinding = ActivityLoginBinding.inflate(getLayoutInflater());
+        setContentView(mBinding.getRoot());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             getWindow().getInsetsController().setSystemBarsAppearance(
@@ -41,7 +42,6 @@ public class LoginActivity extends AppCompatActivity {
 
         getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.colorToolbar));
 
-        setContentView(mBinding.getRoot());
         setSupportActionBar(mBinding.mainToolbar);
 
         mActivity = this;
@@ -50,20 +50,15 @@ public class LoginActivity extends AppCompatActivity {
         String clientSecret = getString(R.string.client_secret);
 
         mLoginBtn = findViewById(R.id.login_btn);
-        mLoginBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                GithubOauth.Builder()
-                        .withClientId(clientId)
-                        .withClientSecret(clientSecret)
-                        .withContext(mActivity)
-                        .withScopeList(new ArrayList(Arrays.asList("public_repo")))
-                        .packageName("com.plweegie.android.squashtwo")
-                        .nextActivity("com.plweegie.android.squashtwo.ui.GithubPagerActivity")
-                        .debug(true)
-                        .execute();
-            }
-        });
+        mLoginBtn.setOnClickListener(view -> GithubOauth.Builder()
+                .withClientId(clientId)
+                .withClientSecret(clientSecret)
+                .withContext(mActivity)
+                .withScopeList(new ArrayList(Arrays.asList("public_repo")))
+                .packageName("com.plweegie.android.squashtwo")
+                .nextActivity("com.plweegie.android.squashtwo.ui.GithubPagerActivity")
+                .debug(true)
+                .execute());
     }
 
     @Override

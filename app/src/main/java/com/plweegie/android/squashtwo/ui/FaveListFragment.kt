@@ -23,10 +23,19 @@ package com.plweegie.android.squashtwo.ui
 
 import android.content.Context
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.plweegie.android.squashtwo.App
@@ -37,6 +46,7 @@ import com.plweegie.android.squashtwo.data.RepoEntry
 import com.plweegie.android.squashtwo.databinding.ListFragmentBinding
 import com.plweegie.android.squashtwo.viewmodels.FaveListViewModel
 import com.plweegie.android.squashtwo.viewmodels.FaveListViewModelFactory
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class FaveListFragment : Fragment(), FaveAdapter.FaveAdapterOnClickHandler,
@@ -48,13 +58,7 @@ class FaveListFragment : Fragment(), FaveAdapter.FaveAdapterOnClickHandler,
     private val viewModel by viewModels<FaveListViewModel> { viewModelFactory }
     private lateinit var faveAdapter: FaveAdapter
 
-    private var _binding: ListFragmentBinding? = null
-    private val binding get() = _binding!!
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
+    private lateinit var binding: ListFragmentBinding
 
     override fun onAttach(context: Context) {
         (activity?.application as App).netComponent.inject(this)
@@ -63,7 +67,7 @@ class FaveListFragment : Fragment(), FaveAdapter.FaveAdapterOnClickHandler,
 
     override fun onCreateView(inflater: LayoutInflater, parent: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        _binding = ListFragmentBinding.inflate(inflater, parent, false)
+        binding = ListFragmentBinding.inflate(inflater, parent, false)
         val v = binding.root
 
         faveAdapter = FaveAdapter(activity).apply {
@@ -75,6 +79,23 @@ class FaveListFragment : Fragment(), FaveAdapter.FaveAdapterOnClickHandler,
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fave_list_menu, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.clear_db -> {
+                        viewModel.deleteAllRepos()
+                        true
+                    }
+                    else -> true
+                }
+            }
+        })
+
         binding.loadIndicator.visibility = View.GONE
 
         binding.commitsRecyclerView.apply {
@@ -84,16 +105,13 @@ class FaveListFragment : Fragment(), FaveAdapter.FaveAdapterOnClickHandler,
             adapter = faveAdapter
         }
 
-        viewModel.faveList.observe(viewLifecycleOwner, Observer {
-            it?.let {
-                repoEntries -> faveAdapter.setContent(repoEntries)
-            }
-        })
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.faveList
+                .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+                .collect {
+                    faveAdapter.setContent(it)
+                }
+        }
     }
 
     override fun onFaveDeleteClicked(repoId: Long) {
@@ -109,21 +127,6 @@ class FaveListFragment : Fragment(), FaveAdapter.FaveAdapterOnClickHandler,
     override fun onItemClick(repo: RepoEntry) {
         val intent = RepoReadmeActivity.newIntent(activity as Context, repo.owner.login, repo.name)
         startActivity(intent)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fave_list_menu, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.clear_db -> {
-                viewModel.deleteAllRepos()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 
     companion object {

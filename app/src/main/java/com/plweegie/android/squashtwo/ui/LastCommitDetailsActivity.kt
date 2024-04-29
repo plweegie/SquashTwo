@@ -32,6 +32,9 @@ import android.view.WindowInsetsController
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.plweegie.android.squashtwo.App
 import com.plweegie.android.squashtwo.R
 import com.plweegie.android.squashtwo.data.Commit
@@ -40,6 +43,7 @@ import com.plweegie.android.squashtwo.rest.GitHubService
 import com.plweegie.android.squashtwo.utils.DateUtils
 import com.plweegie.android.squashtwo.viewmodels.LastCommitDetailsViewModel
 import com.plweegie.android.squashtwo.viewmodels.LastCommitDetailsViewModelFactory
+import kotlinx.coroutines.launch
 import java.text.ParseException
 import javax.inject.Inject
 
@@ -60,6 +64,9 @@ class LastCommitDetailsActivity : AppCompatActivity() {
         (application as App).netComponent.inject(this)
         super.onCreate(savedInstanceState)
 
+        binding = CommitViewBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.setSystemBarsAppearance(
                 WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
@@ -71,8 +78,6 @@ class LastCommitDetailsActivity : AppCompatActivity() {
 
         window.statusBarColor = ContextCompat.getColor(this, R.color.colorToolbar)
 
-        binding = CommitViewBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         setSupportActionBar(binding.mainToolbar)
 
         repoProps = intent.getStringArrayExtra(EXTRA_REPO_PROPS) ?: arrayOf()
@@ -88,7 +93,7 @@ class LastCommitDetailsActivity : AppCompatActivity() {
         updateUI()
     }
 
-    public override fun onSaveInstanceState(outState: Bundle) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putCharSequenceArray(TEXT_VIEW_CONTENTS, arrayOf(
                 binding.commitMessageTv.text,
@@ -99,23 +104,33 @@ class LastCommitDetailsActivity : AppCompatActivity() {
     private fun updateUI() {
         viewModel.getLastCommit(repoProps[0], repoProps[1])
 
-        viewModel.lastCommit.observe(this, { commit ->
-            binding.commitMessageTv.text = commit.commitBody.message
-                .split("\n").toTypedArray()[0]
-            binding.commitInfoTv.text = buildCommitInfo(commit)
-            binding.commitDateTv.text = buildCommitDate(commit)
-        })
+        lifecycleScope.launch {
+            viewModel.loadingState
+                .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collect {
+                    when (it) {
+                        is LastCommitDetailsViewModel.LoadingState.Succeeded -> {
+                            binding.commitMessageTv.text = it.result.commitBody.message
+                                .split("\n").toTypedArray()[0]
+                            binding.commitInfoTv.text = buildCommitInfo(it.result)
+                            binding.commitDateTv.text = buildCommitDate(it.result)
+                        }
+                        is LastCommitDetailsViewModel.LoadingState.Failed -> {
+                            Log.e("LastCommitDetailsActivity", "Error loading commit: ${it.exception}")
+                        }
+                        else -> {
+                            Log.d("LastCommitDetailsActivity", "Loading commit...")
+                        }
+                    }
+                }
+        }
     }
 
     private fun buildCommitInfo(commit: Commit): CharSequence {
         val authorId = commit.commitBody.commitBodyAuthor.name
         val info = this.resources.getString(R.string.commit_info, authorId)
 
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(info, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            Html.fromHtml(info)
-        }
+        return Html.fromHtml(info, Html.FROM_HTML_MODE_LEGACY)
     }
 
     private fun buildCommitDate(commit: Commit): CharSequence {

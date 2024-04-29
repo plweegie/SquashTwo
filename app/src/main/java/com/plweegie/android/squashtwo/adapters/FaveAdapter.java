@@ -30,7 +30,6 @@ import android.widget.ImageView;
 import androidx.fragment.app.FragmentActivity;
 
 import com.plweegie.android.squashtwo.R;
-import com.plweegie.android.squashtwo.adapters.BaseGithubAdapter;
 import com.plweegie.android.squashtwo.data.RepoEntry;
 import com.plweegie.android.squashtwo.ui.FaveDeleteDialog;
 

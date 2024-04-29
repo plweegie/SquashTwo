@@ -52,6 +52,7 @@ public class GithubPagerActivity  extends VisibleActivity {
         super.onCreate(savedInstanceState);
 
         mBinding = ViewPagerBinding.inflate(getLayoutInflater());
+        setContentView(mBinding.getRoot());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             getWindow().getInsetsController().setSystemBarsAppearance(
@@ -64,7 +65,6 @@ public class GithubPagerActivity  extends VisibleActivity {
 
         getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.colorToolbar));
 
-        setContentView(mBinding.getRoot());
         setSupportActionBar(mBinding.mainToolbar);
 
         mPrefs = PreferenceManager.getDefaultSharedPreferences(this);

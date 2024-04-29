@@ -9,13 +9,16 @@ import android.view.View
 import android.view.WindowInsetsController
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.plweegie.android.squashtwo.App
 import com.plweegie.android.squashtwo.R
 import com.plweegie.android.squashtwo.databinding.ActivityRepoReadmeBinding
 import com.plweegie.android.squashtwo.rest.GitHubService
 import io.noties.markwon.Markwon
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -49,6 +52,9 @@ class RepoReadmeActivity : AppCompatActivity() {
         (application as App).netComponent.inject(this)
         super.onCreate(savedInstanceState)
 
+        binding = ActivityRepoReadmeBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.setSystemBarsAppearance(
                 WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
@@ -60,8 +66,6 @@ class RepoReadmeActivity : AppCompatActivity() {
 
         window.statusBarColor = ContextCompat.getColor(this, R.color.colorToolbar)
 
-        binding = ActivityRepoReadmeBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         setSupportActionBar(binding.mainToolbar)
 
         markwon = Markwon.create(this)
@@ -72,17 +76,19 @@ class RepoReadmeActivity : AppCompatActivity() {
     }
 
     private fun updateUI() {
-        lifecycleScope.launchWhenResumed {
-            readmeOwner?.let {
-                try {
-                    val readme = apiService.getReadme(it, readmeName!!)
-                    val data = Base64.decode(readme.content, Base64.DEFAULT)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                readmeOwner?.let {
+                    try {
+                        val readme = apiService.getReadme(it, readmeName!!)
+                        val data = Base64.decode(readme.content, Base64.DEFAULT)
 
-                    withContext(Dispatchers.Main) {
-                        markwon.setMarkdown(binding.readmeContentTv, String(data, Charsets.UTF_8))
+                        withContext(Dispatchers.Main) {
+                            markwon.setMarkdown(binding.readmeContentTv, String(data, Charsets.UTF_8))
+                        }
+                    } catch(e: HttpException) {
+                        markwon.setMarkdown(binding.readmeContentTv, getString(R.string.no_readme_found))
                     }
-                } catch(e: HttpException) {
-                    markwon.setMarkdown(binding.readmeContentTv, getString(R.string.no_readme_found))
                 }
             }
         }

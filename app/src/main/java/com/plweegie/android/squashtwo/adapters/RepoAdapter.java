@@ -29,6 +29,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
 import com.plweegie.android.squashtwo.R;
@@ -51,6 +52,7 @@ public class RepoAdapter extends BaseGithubAdapter {
         mComparator = new QueryPreferences.RepoNameComparator();
     }
 
+    @NonNull
     @Override
     public RepoHolder onCreateViewHolder(ViewGroup vg, int i) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
@@ -69,7 +71,9 @@ public class RepoAdapter extends BaseGithubAdapter {
 
     public void addAll(List<RepoEntry> repos) {
         for (RepoEntry r : repos) {
-            add(r);
+            if (!mRepos.contains(r)) {
+                add(r);
+            }
         }
     }
 
