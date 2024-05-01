@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 class RepoListViewModel(private val repository: RepoRepository) : ViewModel() {
 
     sealed class LoadingState {
+        object Idle : LoadingState()
         object Loading : LoadingState()
         class Failed(val exception: Exception) : LoadingState()
         class Succeeded(val repos: List<RepoEntry>?) : LoadingState()
@@ -21,7 +22,7 @@ class RepoListViewModel(private val repository: RepoRepository) : ViewModel() {
         get() = _loadingState
 
     private val _loadingState: MutableStateFlow<LoadingState> =
-        MutableStateFlow(LoadingState.Succeeded(emptyList()))
+        MutableStateFlow(LoadingState.Idle)
 
     fun fetchData(userName: String, page: Int) {
         _loadingState.value = LoadingState.Loading

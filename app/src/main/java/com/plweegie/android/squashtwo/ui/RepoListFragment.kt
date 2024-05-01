@@ -253,6 +253,7 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
                             binding.loadIndicator.visibility = View.GONE
                             processRepos(state.repos)
                         }
+                        else -> Unit
                     }
                 }
         }

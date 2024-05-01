@@ -97,13 +97,13 @@ public class RepoAdapter extends BaseGithubAdapter {
                 .KEY_PREF_SORT_BY_SETTING, "-1"));
         switch(sortedBy) {
             case 1:
-                mComparator = new QueryPreferences.RepoCreatedComparator();
+                mComparator = new QueryPreferences.RepoNameComparator();
                 break;
             case 2:
-                mComparator = new QueryPreferences.RepoStarsComparator();
+                mComparator = new QueryPreferences.RepoCreatedComparator();
                 break;
             default:
-                mComparator = new QueryPreferences.RepoNameComparator();
+                mComparator = new QueryPreferences.RepoStarsComparator();
         }
         Collections.sort(mRepos, mComparator);
         notifyDataSetChanged();
