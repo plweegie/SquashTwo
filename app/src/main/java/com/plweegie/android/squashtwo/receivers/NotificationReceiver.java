@@ -1,5 +1,6 @@
 package com.plweegie.android.squashtwo.receivers;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Notification;
 import android.content.BroadcastReceiver;
@@ -12,6 +13,7 @@ import com.plweegie.android.squashtwo.services.CommitPollWorker;
 
 public class NotificationReceiver extends BroadcastReceiver {
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onReceive(Context context, Intent intent) {
         if (getResultCode() != Activity.RESULT_OK) {
