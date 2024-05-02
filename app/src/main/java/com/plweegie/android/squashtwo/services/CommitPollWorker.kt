@@ -60,6 +60,7 @@ class CommitPollWorker(val context: Context, params: WorkerParameters) : Corouti
             processCommits(commits)
             Result.success()
         } catch (e: Exception) {
+            Log.e("WORKER", "Error fetching commits: $e")
             Result.failure()
         }
     }
@@ -89,13 +90,14 @@ class CommitPollWorker(val context: Context, params: WorkerParameters) : Corouti
                     0, commitDetailsIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
             val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-                    .setTicker(context.getString(R.string.new_commit_headline))
-                    .setContentTitle(context.getString(R.string.new_commit_headline))
-                    .setContentText(commitRepo)
-                    .setContentIntent(commitPendingIntent)
-                    .setSmallIcon(R.drawable.ic_info_24dp)
-                    .setAutoCancel(true)
-                    .build()
+                .setTicker(context.getString(R.string.new_commit_headline))
+                .setContentTitle(context.getString(R.string.new_commit_headline))
+                .setContentText(commitRepo)
+                .setContentIntent(commitPendingIntent)
+                .setSmallIcon(R.drawable.ic_info_24dp)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setAutoCancel(true)
+                .build()
 
             showBackgroundNotif(0, notification)
             queryPrefs.lastResultDate = newLastDate

@@ -39,8 +39,10 @@
             android:parentActivityName=".ui.GithubPagerActivity" />
         <activity android:name=".ui.RepoReadmeActivity" />
 
-        <receiver android:name=".receivers.NotificationReceiver"
-            android:exported="false">
+        <receiver
+            android:name=".receivers.NotificationReceiver"
+            android:permission="com.plweegie.android.squashtwo.PRIVATE"
+            android:exported="true">
             <intent-filter android:priority="-999">
                 <action android:name="com.plweegie.android.squashtwo.SHOW_NOTIFICATION" />
             </intent-filter>

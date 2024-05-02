@@ -23,7 +23,7 @@ public abstract class VisibleActivity extends AppCompatActivity {
                     filter,
                     CommitPollWorker.PERMISSION_PRIVATE,
                     null,
-                    Context.RECEIVER_NOT_EXPORTED
+                    Context.RECEIVER_EXPORTED
             );
         } else {
             this.registerReceiver(
