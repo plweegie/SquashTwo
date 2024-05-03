@@ -54,7 +54,8 @@ class CommitPollWorker(val context: Context, params: WorkerParameters) : Corouti
         return try {
             repos.forEach { repo ->
                 val foundCommit = service.getCommits(repo.owner.login, repo.name, 5)
-                        .first { !it.commitBody.message.startsWith("Merge pull") }
+                    .filterNot { it.commitBody.message.startsWith("Merge pull") }
+                    .first()
                 commits.add(foundCommit)
             }
             processCommits(commits)
