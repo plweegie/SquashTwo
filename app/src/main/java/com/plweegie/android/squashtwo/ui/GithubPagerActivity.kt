@@ -28,6 +28,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.WindowInsetsController
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import androidx.viewpager2.widget.ViewPager2
@@ -39,7 +40,7 @@ import com.plweegie.android.squashtwo.databinding.ActivityGithubPagerBinding
 import com.plweegie.android.squashtwo.utils.AuthUtils
 import com.plweegie.android.squashtwo.utils.WorkManagerUtil.Companion.enqueueWorkRequest
 
-class GithubPagerActivity : VisibleActivity() {
+class GithubPagerActivity : AppCompatActivity() {
 
     private val tabTitles = intArrayOf(R.string.list_repos, R.string.list_faves)
 

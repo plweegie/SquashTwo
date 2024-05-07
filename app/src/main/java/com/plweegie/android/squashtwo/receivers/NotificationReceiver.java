@@ -23,7 +23,9 @@ public class NotificationReceiver extends BroadcastReceiver {
         int requestCode = intent.getIntExtra(CommitPollWorker.REQUEST_CODE, 0);
         Notification notif = intent.getParcelableExtra(CommitPollWorker.NOTIFICATION);
 
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.notify(requestCode, notif);
+        if (notif != null) {
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+            notificationManager.notify(requestCode, notif);
+        }
     }
 }

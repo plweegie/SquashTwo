@@ -20,6 +20,7 @@ import com.plweegie.android.squashtwo.utils.QueryPreferences
 import java.text.ParseException
 import java.util.*
 import javax.inject.Inject
+import kotlin.random.Random
 
 class CommitPollWorker(val context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
 
@@ -37,7 +38,6 @@ class CommitPollWorker(val context: Context, params: WorkerParameters) : Corouti
     companion object {
         private const val CHANNEL_ID = "com.plweegie.android.squashtwo"
         const val ACTION_SHOW_NOTIFICATION = "com.plweegie.android.squashtwo.SHOW_NOTIFICATION"
-        const val PERMISSION_PRIVATE = "com.plweegie.android.squashtwo.PRIVATE"
         const val REQUEST_CODE = "request_code"
         const val NOTIFICATION = "notification"
     }
@@ -80,6 +80,8 @@ class CommitPollWorker(val context: Context, params: WorkerParameters) : Corouti
         }
 
         if (newLastDate > lastDate) {
+            val requestCode = Random.nextInt()
+
             val updatedCommit = commits[0]
             val splitCommit = updatedCommit.htmlUrl.split("/")
             val commitRepo = splitCommit[4]
@@ -87,8 +89,12 @@ class CommitPollWorker(val context: Context, params: WorkerParameters) : Corouti
 
             val commitDetailsIntent = LastCommitDetailsActivity.newIntent(context,
                     arrayOf(commitOwner, commitRepo))
-            val commitPendingIntent = PendingIntent.getActivity(context,
-                    0, commitDetailsIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+            val commitPendingIntent = PendingIntent.getActivity(
+                context,
+                requestCode,
+                commitDetailsIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
 
             val notification = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setTicker(context.getString(R.string.new_commit_headline))
@@ -100,7 +106,7 @@ class CommitPollWorker(val context: Context, params: WorkerParameters) : Corouti
                 .setAutoCancel(true)
                 .build()
 
-            showBackgroundNotif(0, notification)
+            showBackgroundNotif(requestCode, notification)
             queryPrefs.lastResultDate = newLastDate
         }
     }
@@ -109,10 +115,10 @@ class CommitPollWorker(val context: Context, params: WorkerParameters) : Corouti
         val intent = Intent(ACTION_SHOW_NOTIFICATION).apply {
             putExtra(REQUEST_CODE, requestCode)
             putExtra(NOTIFICATION, notif)
+            setPackage(context.packageName)
         }
 
-        context.sendOrderedBroadcast(intent, PERMISSION_PRIVATE, null, null,
-                Activity.RESULT_OK, null, null)
+        context.sendOrderedBroadcast(intent, null, null, null, Activity.RESULT_OK, null, null)
     }
 
 

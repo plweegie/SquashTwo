@@ -2,13 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.plweegie.android.squashtwo">
 
-    <permission android:name="com.plweegie.android.squashtwo.PRIVATE"
-        android:protectionLevel="signature" />
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="com.plweegie.android.squashtwo.PRIVATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
@@ -41,14 +37,14 @@
 
         <receiver
             android:name=".receivers.NotificationReceiver"
-            android:permission="com.plweegie.android.squashtwo.PRIVATE"
-            android:exported="true">
+            android:exported="false">
             <intent-filter android:priority="-999">
                 <action android:name="com.plweegie.android.squashtwo.SHOW_NOTIFICATION" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".receivers.StartupReceiver"  android:exported="true">
+        <receiver android:name=".receivers.StartupReceiver"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
