@@ -15,7 +15,9 @@ class RoomModule(private val databaseName: String) {
     @Provides
     @Singleton
     fun provideDatabase(application: Application): RepoDatabase =
-        Room.databaseBuilder(application, RepoDatabase::class.java, databaseName).build()
+        Room.databaseBuilder(application, RepoDatabase::class.java, databaseName)
+            .fallbackToDestructiveMigration()
+            .build()
 
     @Provides
     @Singleton

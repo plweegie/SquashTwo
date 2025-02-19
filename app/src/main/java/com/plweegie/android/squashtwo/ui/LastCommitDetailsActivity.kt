@@ -28,10 +28,14 @@ import android.os.Bundle
 import android.text.Html
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowInsetsController
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -79,6 +83,18 @@ class LastCommitDetailsActivity : AppCompatActivity() {
         window.statusBarColor = ContextCompat.getColor(this, R.color.colorToolbar)
 
         setSupportActionBar(binding.mainToolbar)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            ViewCompat.setOnApplyWindowInsetsListener(binding.mainToolbar) { v, insets ->
+                val viewInsets = insets.getInsets(WindowInsetsCompat.Type.statusBars())
+
+                v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    topMargin = viewInsets.top
+                }
+
+                WindowInsetsCompat.CONSUMED
+            }
+        }
 
         repoProps = intent.getStringArrayExtra(EXTRA_REPO_PROPS) ?: arrayOf()
 

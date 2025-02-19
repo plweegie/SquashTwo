@@ -29,7 +29,6 @@ import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -72,7 +71,6 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
     private lateinit var repoAdapter: RepoAdapter
     private lateinit var manager: LinearLayoutManager
     private lateinit var imm: InputMethodManager
-    private lateinit var menuHost: MenuHost
 
     private var isContentLoading = false
     private var isContentLastPage = false
@@ -130,7 +128,9 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        menuHost = requireActivity()
+        val menuHost = requireActivity()
+
+        menuHost.addMenuProvider(menuProvider, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         binding.loadIndicator.visibility = View.GONE
 
@@ -162,12 +162,6 @@ class RepoListFragment : Fragment(), RepoAdapter.RepoAdapterOnClickHandler,
     override fun onResume() {
         super.onResume()
         sharedPrefs.registerOnSharedPreferenceChangeListener(listener)
-        menuHost.addMenuProvider(menuProvider)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        menuHost.removeMenuProvider(menuProvider)
     }
 
     override fun onDestroy() {

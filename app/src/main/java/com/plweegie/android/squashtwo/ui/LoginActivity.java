@@ -5,11 +5,15 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowInsetsController;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.plweegie.android.squashtwo.R;
 import com.plweegie.android.squashtwo.auth.GithubOauth;
@@ -17,7 +21,7 @@ import com.plweegie.android.squashtwo.auth.ResultCode;
 import com.plweegie.android.squashtwo.databinding.ActivityLoginBinding;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -44,6 +48,18 @@ public class LoginActivity extends AppCompatActivity {
 
         setSupportActionBar(mBinding.mainToolbar);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            ViewCompat.setOnApplyWindowInsetsListener(mBinding.mainToolbar, (v, insets) -> {
+                Insets viewInsets = insets.getInsets(WindowInsetsCompat.Type.statusBars());
+
+                ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                mlp.topMargin = viewInsets.top;
+                v.setLayoutParams(mlp);
+
+                return WindowInsetsCompat.CONSUMED;
+            });
+        }
+
         mActivity = this;
 
         String clientId = getString(R.string.client_id);
@@ -54,7 +70,7 @@ public class LoginActivity extends AppCompatActivity {
                 .withClientId(clientId)
                 .withClientSecret(clientSecret)
                 .withContext(mActivity)
-                .withScopeList(new ArrayList(Arrays.asList("public_repo")))
+                .withScopeList(new ArrayList<>(List.of("public_repo")))
                 .packageName("com.plweegie.android.squashtwo")
                 .nextActivity("com.plweegie.android.squashtwo.ui.GithubPagerActivity")
                 .debug(true)

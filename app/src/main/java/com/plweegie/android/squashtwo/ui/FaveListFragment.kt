@@ -29,7 +29,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -57,7 +56,6 @@ class FaveListFragment : Fragment(), FaveAdapter.FaveAdapterOnClickHandler,
 
     private val viewModel by viewModels<FaveListViewModel> { viewModelFactory }
     private lateinit var faveAdapter: FaveAdapter
-    private lateinit var menuHost: MenuHost
 
     private lateinit var binding: ListFragmentBinding
 
@@ -96,7 +94,9 @@ class FaveListFragment : Fragment(), FaveAdapter.FaveAdapterOnClickHandler,
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        menuHost = requireActivity()
+        val menuHost = requireActivity()
+
+        menuHost.addMenuProvider(menuProvider, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         binding.loadIndicator.visibility = View.GONE
 
@@ -114,16 +114,6 @@ class FaveListFragment : Fragment(), FaveAdapter.FaveAdapterOnClickHandler,
                     faveAdapter.setContent(it)
                 }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        menuHost.addMenuProvider(menuProvider)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        menuHost.removeMenuProvider(menuProvider)
     }
 
     override fun onFaveDeleteClicked(repoId: Long) {

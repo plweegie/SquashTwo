@@ -37,7 +37,6 @@ import com.plweegie.android.squashtwo.data.RepoEntry;
 import com.plweegie.android.squashtwo.ui.SettingsFragment;
 import com.plweegie.android.squashtwo.utils.QueryPreferences;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -105,7 +104,7 @@ public class RepoAdapter extends BaseGithubAdapter {
             default:
                 mComparator = new QueryPreferences.RepoStarsComparator();
         }
-        Collections.sort(mRepos, mComparator);
+        mRepos.sort(mComparator);
         notifyDataSetChanged();
     }
 
