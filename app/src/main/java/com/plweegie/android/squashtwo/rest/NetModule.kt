@@ -35,7 +35,7 @@ class NetModule(private val baseUrl: String) {
     @Singleton
     fun provideAuthorizationInterceptor(preferences: QueryPreferences): Interceptor = Interceptor { chain ->
         var request = chain.request()
-        val headers = request.headers().newBuilder()
+        val headers = request.headers.newBuilder()
                 .add("Authorization", "token ${preferences.storedAccessToken}")
                 .build()
 

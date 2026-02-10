@@ -7,11 +7,11 @@ apply plugin: 'kotlin-android'
 
 android {
     namespace "com.plweegie.android.squashtwo"
-    compileSdk 35
+    compileSdk 36
     defaultConfig {
         applicationId "com.plweegie.android.squashtwo"
         minSdkVersion 24
-        targetSdkVersion 35
+        targetSdkVersion 36
         versionCode 1
         versionName "1.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -46,33 +46,33 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:3.0-alpha-1'
-    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-release:3.0-alpha-1'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:3.0-alpha-8'
+    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-release:3.0-alpha-8'
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.core:core-ktx:1.15.0'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'androidx.core:core-ktx:1.17.0'
     implementation 'androidx.legacy:legacy-support-core-utils:1.0.0'
     implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
-    implementation 'androidx.fragment:fragment-ktx:1.8.6'
-    implementation 'androidx.activity:activity-ktx:1.10.0'
+    implementation 'androidx.fragment:fragment-ktx:1.8.9'
+    implementation 'androidx.activity:activity-ktx:1.12.3'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     implementation 'androidx.preference:preference-ktx:1.2.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
 
-    implementation 'com.google.code.gson:gson:2.11.0'
-    implementation 'com.squareup.retrofit2:retrofit:2.11.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.11.0'
+    implementation 'com.google.code.gson:gson:2.13.2'
+    implementation 'com.squareup.retrofit2:retrofit:3.0.0'
+    implementation 'com.squareup.retrofit2:converter-gson:3.0.0'
 
-    implementation 'com.google.dagger:dagger:2.55'
-    implementation 'com.google.dagger:dagger-android:2.55'
-    implementation 'com.google.dagger:dagger-android-support:2.55'
-    ksp 'com.google.dagger:dagger-compiler:2.55'
-    ksp 'com.google.dagger:dagger-android-processor:2.55'
+    implementation 'com.google.dagger:dagger:2.59.1'
+    implementation 'com.google.dagger:dagger-android:2.59.1'
+    implementation 'com.google.dagger:dagger-android-support:2.59.1'
+    ksp 'com.google.dagger:dagger-compiler:2.59.1'
+    ksp 'com.google.dagger:dagger-android-processor:2.59.1'
 
-    def room_version = "2.6.1"
-    def lifecycle_version = "2.8.7"
+    def room_version = "2.8.4"
+    def lifecycle_version = "2.10.0"
 
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-rxjava2:$room_version"
@@ -85,18 +85,18 @@ dependencies {
     testImplementation 'androidx.arch.core:core-testing:2.2.0'
     testImplementation "androidx.room:room-testing:$room_version"
 
-    def work_version = "2.10.0"
+    def work_version = "2.11.1"
     implementation "androidx.work:work-runtime:$work_version"
     implementation "androidx.work:work-runtime-ktx:$work_version"
     androidTestImplementation "androidx.work:work-testing:$work_version"
 
-    def nav_version = "2.8.7"
+    def nav_version = "2.9.7"
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
     implementation 'androidx.viewpager2:viewpager2:1.1.0'
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
 
     implementation 'io.noties.markwon:core:4.6.2'
     testImplementation 'junit:junit:4.13.2'
